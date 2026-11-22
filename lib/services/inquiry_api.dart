@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 /// TODO: set this to your backend URL. While empty, the payload is only
 /// printed to the console and the call succeeds (development mode).
-const inquiryEndpoint = '';
+const inquiryEndpoint = 'http://localhost:3000/inquiries';
 
 class InquiryPayload {
   final String fullName, email, phone, practiceArea, message;
