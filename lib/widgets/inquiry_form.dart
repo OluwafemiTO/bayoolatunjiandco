@@ -37,8 +37,6 @@ class _InquiryFormState extends State<InquiryForm> {
   String? _validEmail(String? v) =>
       _required(v) ?? (v!.contains('@') && v.contains('.') ? null : 'Enter a valid email address');
 
-  // NEW: the API requires at least 5 characters
-  String? _validPhone(String? v) => _required(v) ?? (v!.trim().length >= 5 ? null : 'Phone number is too short');
 
   // NEW: turns an API error into a message for the visitor
   String _messageFor(ApiException e) {
