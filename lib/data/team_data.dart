@@ -19,4 +19,8 @@ const team = <Member>[
       admissions: ['Nigerian Bar (placeholder)'], highlights: ['Placeholder highlight']),
   Member('Associate Name', 'Associate', 'LL.B, BL', 'AN', _placeholderBio,
       admissions: ['Nigerian Bar (placeholder)'], highlights: ['Placeholder highlight']),
+  Member('Associate Name', 'Associate', 'LL.B, BL', 'AN', _placeholderBio,
+      admissions: ['Nigerian Bar (placeholder)'], highlights: ['Placeholder highlight']),
+  Member('Associate Name', 'Associate', 'LL.B, BL', 'AN', _placeholderBio,
+      admissions: ['Nigerian Bar (placeholder)'], highlights: ['Placeholder highlight']),
 ];

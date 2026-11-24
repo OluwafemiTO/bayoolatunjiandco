@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/core.dart';
 import '../data/data.dart';
+import '../widgets/async_view.dart';
 import '../widgets/responsive_grid.dart';
 import '../widgets/team_member_card.dart';
 
@@ -13,7 +14,12 @@ class TeamSection extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           heading(context, 'Our team'),
           const SizedBox(height: 40),
-          ResponsiveGrid(maxColumns: 4, children: [for (final m in team) TeamMemberCard(m)]),
+          AsyncView<List<Member>>(
+            load: (refresh) => content.team(refresh: refresh),
+            builder: (_, members) => members.isEmpty
+                ? body('Our team profiles will be available shortly.')
+                : ResponsiveGrid(maxColumns: 4, children: [for (final m in members) TeamMemberCard(m)]),
+          ),
         ]),
       );
 }

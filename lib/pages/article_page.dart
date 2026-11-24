@@ -6,6 +6,7 @@ import '../layout/footer.dart';
 import '../layout/site_app_bar.dart';
 import '../layout/site_drawer.dart';
 import '../widgets/article_view.dart';
+import '../widgets/async_view.dart';
 import '../widgets/brand_button.dart';
 
 class ArticlePage extends StatelessWidget {
@@ -14,12 +15,12 @@ class ArticlePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final article = findArticle(slug);
     void home(String _) => context.go('/');
     return Scaffold(
       appBar: SiteAppBar(items: navItems, onNav: home),
       endDrawer: SiteDrawer(items: navItems, onNav: home),
       body: SingleChildScrollView(
+        key: ValueKey(slug),
         child: Column(children: [
           Section(
             bg: context.pal.page,
@@ -27,7 +28,13 @@ class ArticlePage extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 720),
-                child: article == null ? _notFound(context) : ArticleView(article),
+                child: AsyncView<Article>(
+                  key: ValueKey(slug),
+                  load: (refresh) => content.article(slug, refresh: refresh),
+                  builder: (_, article) => ArticleView(article),
+                  errorBuilder: (context, e, retry) =>
+                      e.isNotFound ? _notFound(context) : ErrorPanel(message: e.message, onRetry: retry),
+                ),
               ),
             ),
           ),

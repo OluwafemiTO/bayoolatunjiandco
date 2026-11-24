@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'phone_field.dart';
 import '../data/data.dart';
+import '../services/api_client.dart'; // NEW
 import '../services/inquiry_api.dart';
 import 'brand_button.dart';
 import 'form_error_banner.dart';
@@ -19,6 +21,7 @@ class _InquiryFormState extends State<InquiryForm> {
   final _phone = TextEditingController();
   final _message = TextEditingController();
   String? _area;
+  Country _country = countries.first; // Nigeria
   bool _loading = false, _done = false;
   String? _error;
 
@@ -34,6 +37,16 @@ class _InquiryFormState extends State<InquiryForm> {
   String? _validEmail(String? v) =>
       _required(v) ?? (v!.contains('@') && v.contains('.') ? null : 'Enter a valid email address');
 
+  // NEW: the API requires at least 5 characters
+  String? _validPhone(String? v) => _required(v) ?? (v!.trim().length >= 5 ? null : 'Phone number is too short');
+
+  // NEW: turns an API error into a message for the visitor
+  String _messageFor(ApiException e) {
+    if (e.status == 429) return 'Too many attempts. Please wait a minute and try again.';
+    if (e.status == 400 && e.details.isNotEmpty) return e.details.map((d) => d.message).join('. ');
+    return 'We could not send your inquiry. Please try again or email $firmEmail.';
+  }
+
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     setState(() {
@@ -44,7 +57,7 @@ class _InquiryFormState extends State<InquiryForm> {
       await sendInquiry(InquiryPayload(
         fullName: _name.text.trim(),
         email: _email.text.trim(),
-        phone: _phone.text.trim(),
+        phone: PhoneField.compose(_country, _phone.text),
         practiceArea: _area!,
         message: _message.text.trim(),
       ));
@@ -53,10 +66,13 @@ class _InquiryFormState extends State<InquiryForm> {
         _done = true;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      // CHANGED: was `catch (_)` with one fixed message
       if (!mounted) return;
       setState(() {
-        _error = 'We could not send your inquiry. Please try again or email $firmEmail.';
+        _error = e is ApiException
+            ? _messageFor(e)
+            : 'We could not send your inquiry. Please try again or email $firmEmail.';
         _loading = false;
       });
     }
@@ -89,11 +105,11 @@ class _InquiryFormState extends State<InquiryForm> {
             decoration: inputDecoration(context, 'Email address'),
             validator: _validEmail),
         _gap,
-        TextFormField(
-            controller: _phone,
-            keyboardType: TextInputType.phone,
-            decoration: inputDecoration(context, 'Phone number'),
-            validator: _required),
+        PhoneField(
+          controller: _phone,
+          country: _country,
+          onCountryChanged: (c) => setState(() => _country = c),
+        ),
         _gap,
         DropdownButtonFormField<String>(
           value: _area,
